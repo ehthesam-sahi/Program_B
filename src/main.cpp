@@ -11,7 +11,6 @@
 
 int main() {
 #ifdef _WIN32
-    // Force Windows Terminal / PowerShell to render UTF-8 box-drawing characters
     SetConsoleOutputCP(CP_UTF8);
 #endif
 
