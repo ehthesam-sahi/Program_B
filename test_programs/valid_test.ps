@@ -1,0 +1,11 @@
+define total as number with 10 + 5 * 2;
+define greeting as text with "Hello Compiler";
+when total > 15 then
+    output(total);
+otherwise
+    output(0);
+end;
+repeat while total > 15 do
+    set total to total - 1;
+    output(total);
+end;
