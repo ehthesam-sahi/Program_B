@@ -6,13 +6,15 @@
 
 enum class TokenType {
     // Keywords
-    DEFINE, AS, WITH, SET, TO, WHEN, THEN, OTHERWISE, REPEAT, WHILE, DO, OUTPUT,
+    DEFINE, AS, WITH, SET, TO, WHEN, THEN, OTHERWISE, 
+    REPEAT, WHILE, DO, END, OUTPUT,
     TYPE_NUMBER, TYPE_TEXT,
 
     // Relational Operators
-    EQUALS, NOT_EQUALS, IS_LESS_THAN, IS_GREATER_THAN, LE, GE,
+    EQUALS, NOT_EQUALS, IS_LESS_THAN, IS_GREATER_THAN, 
+    LESS_EQUAL, GREATER_EQUAL,
 
-    // Arithmetic / Operators
+    // Arithmetic / Assignment Operators
     PLUS, MINUS, MULTIPLY, DIVIDE, ASSIGN,
 
     // Literals & Identifiers
