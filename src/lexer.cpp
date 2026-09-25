@@ -10,13 +10,23 @@ char Lexer::peek() const {
 
 char Lexer::get() {
     if (pos >= source.length()) return '\0';
-    return source[pos++];
+    char ch = source[pos++];
+    if (ch == '\n') {
+        line++;
+    }
+    return ch;
 }
 
 void Lexer::skipWhitespace() {
-    while (peek() == ' ' || peek() == '\t' || peek() == '\r' || peek() == '\n') {
-        if (peek() == '\n') line++;
-        get();
+    while (pos < source.length()) {
+        char ch = peek();
+        if (ch == ' ' || ch == '\t' || ch == '\r') {
+            get();
+        } else if (ch == '\n') {
+            get(); // get() automatically increments line counter
+        } else {
+            break;
+        }
     }
 }
 
@@ -29,7 +39,7 @@ std::vector<Token> Lexer::tokenize() {
 
         char current = peek();
 
-        // Single character symbols
+        // Single and Double Character Operators / Symbols
         if (current == ';') { get(); tokens.push_back({TokenType::SEMICOLON, ";", line}); }
         else if (current == '(') { get(); tokens.push_back({TokenType::LPAREN, "(", line}); }
         else if (current == ')') { get(); tokens.push_back({TokenType::RPAREN, ")", line}); }
@@ -40,6 +50,44 @@ std::vector<Token> Lexer::tokenize() {
         else if (current == '*') { get(); tokens.push_back({TokenType::MULTIPLY, "*", line}); }
         else if (current == '/') { get(); tokens.push_back({TokenType::DIVIDE, "/", line}); }
         
+        // Relational and Equality Operators
+        else if (current == '=') {
+            get();
+            if (peek() == '=') {
+                get();
+                tokens.push_back({TokenType::EQUALS, "==", line});
+            } else {
+                tokens.push_back({TokenType::ASSIGN, "=", line});
+            }
+        }
+        else if (current == '!') {
+            get();
+            if (peek() == '=') {
+                get();
+                tokens.push_back({TokenType::NOT_EQUALS, "!=", line});
+            } else {
+                tokens.push_back({TokenType::UNKNOWN, "!", line});
+            }
+        }
+        else if (current == '>') {
+            get();
+            if (peek() == '=') {
+                get();
+                tokens.push_back({TokenType::GREATER_EQUAL, ">=", line});
+            } else {
+                tokens.push_back({TokenType::IS_GREATER_THAN, ">", line});
+            }
+        }
+        else if (current == '<') {
+            get();
+            if (peek() == '=') {
+                get();
+                tokens.push_back({TokenType::LESS_EQUAL, "<=", line});
+            } else {
+                tokens.push_back({TokenType::IS_LESS_THAN, "<", line});
+            }
+        }
+
         // Strings
         else if (current == '"') {
             get(); // Consume opening quote
@@ -47,11 +95,13 @@ std::vector<Token> Lexer::tokenize() {
             while (peek() != '"' && peek() != '\0') {
                 strVal += get();
             }
-            get(); // Consume closing quote
+            if (peek() == '"') {
+                get(); // Consume closing quote
+            }
             tokens.push_back({TokenType::STRING_LITERAL, strVal, line});
         }
-        
-        // Numbers
+
+        // Numbers (Integers and Floating Points)
         else if (std::isdigit(current)) {
             std::string numStr = "";
             while (std::isdigit(peek()) || peek() == '.') {
@@ -78,6 +128,7 @@ std::vector<Token> Lexer::tokenize() {
             else if (ident == "repeat") tokens.push_back({TokenType::REPEAT, ident, line});
             else if (ident == "while") tokens.push_back({TokenType::WHILE, ident, line});
             else if (ident == "do") tokens.push_back({TokenType::DO, ident, line});
+            else if (ident == "end") tokens.push_back({TokenType::END, ident, line});
             else if (ident == "output") tokens.push_back({TokenType::OUTPUT, ident, line});
             else if (ident == "number") tokens.push_back({TokenType::TYPE_NUMBER, ident, line});
             else if (ident == "text") tokens.push_back({TokenType::TYPE_TEXT, ident, line});
@@ -87,7 +138,8 @@ std::vector<Token> Lexer::tokenize() {
             else tokens.push_back({TokenType::IDENTIFIER, ident, line});
         }
         else {
-            get(); // skip unknown character
+            std::string unk(1, get());
+            tokens.push_back({TokenType::UNKNOWN, unk, line});
         }
     }
 
