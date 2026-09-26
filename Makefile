@@ -1,18 +1,17 @@
-CXX := g++
-CPPFLAGS := -Iinclude
-CXXFLAGS := -std=c++17 -Wall -Wextra
-SOURCES := $(wildcard src/*.cpp)
-TARGET := main.exe
+CXX = g++
+CXXFLAGS = -std=c++17 -Wall -Iinclude
 
-.PHONY: all run clean
+SRC = src/main.cpp src/lexer.cpp src/parser.cpp src/symboltable.cpp src/semantic.cpp src/codegen.cpp src/codegen_wasm.cpp src/error.cpp src/ast.cpp
+OBJ = $(SRC:.cpp=.o)
+TARGET = compiler.exe
 
 all: $(TARGET)
 
-$(TARGET): $(SOURCES)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(SOURCES) -o $@
+$(TARGET): $(OBJ)
+	$(CXX) $(OBJ) -o $(TARGET)
 
-run: $(TARGET)
-	./$(TARGET)
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	$(RM) $(TARGET)
+	del /f /q src\*.o $(TARGET)
